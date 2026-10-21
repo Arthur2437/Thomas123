@@ -26,6 +26,37 @@ def criar_funcao(expressao):
     # Multiplicação implícita 2x, 3(x+1), x(x+1), )(, 2pi, xpi
     expr = re.sub(r"(\d+)([a-zA-Z])", r"\1*\2", expr)
     expr = re.sub(r"(\d+)(\()", r"\1*\2", expr)
+    expr = re.sub(r"([a-zA-Z])(\()", r"\1*\2", expr)
+    expr = re.sub(r"(\))(\()", r"\1*\2", expr)
+    expr = re.sub(r"(\))([a-zA-Z])", r"\1*\2", expr)
+
+    def f(x):
+        ambiente = {
+            "x": x,
+            "e": math.e,
+            "pi": math.pi,
+            "exp": math.exp,
+            "sin": math.sin,
+            "cos": math.cos,
+            "tan": math.tan,
+            "sqrt": math.sqrt,
+            "log": math.log,
+            "abs": abs,
+            "pow": pow,
+        }
+        return float(eval(expr, {"__builtins__": {}}, ambiente))
+
+    # Testa a expressão no ponto 0.0 para garantir validade sintática
+    try:
+        f(0.0)
+    except Exception:
+        pass
+
+    return f, expr
+
+    # Multiplicação implícita 2x, 3(x+1), x(x+1), )(, 2pi, xpi
+    expr = re.sub(r"(\d+)([a-zA-Z])", r"\1*\2", expr)
+    expr = re.sub(r"(\d+)(\()", r"\1*\2", expr)
     expr = re.sub(r"([a-zA-Z])(\()", r"\1*\2", expr) expr = re.sub(r"(\))(\()", r"\1*\2", expr) expr = re.sub(r"(\))([a-zA-Z])", r"\1*\2", expr)
 
     def f(x):
