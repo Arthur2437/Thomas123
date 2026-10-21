@@ -1,4 +1,5 @@
 
+
 # ============================================================
 # CONFIGURAÇÃO DA PÁGINA
 # ============================================================
@@ -22,37 +23,6 @@ def criar_funcao(expressao):
     }
     for a, b in substituicoes.items():
         expr = re.sub(rf"\b{a}\b", b, expr, flags=re.IGNORECASE)
-
-    # Multiplicação implícita 2x, 3(x+1), x(x+1), )(, 2pi, xpi
-    expr = re.sub(r"(\d+)([a-zA-Z])", r"\1*\2", expr)
-    expr = re.sub(r"(\d+)(\()", r"\1*\2", expr)
-    expr = re.sub(r"([a-zA-Z])(\()", r"\1*\2", expr)
-    expr = re.sub(r"(\))(\()", r"\1*\2", expr)
-    expr = re.sub(r"(\))([a-zA-Z])", r"\1*\2", expr)
-
-    def f(x):
-        ambiente = {
-            "x": x,
-            "e": math.e,
-            "pi": math.pi,
-            "exp": math.exp,
-            "sin": math.sin,
-            "cos": math.cos,
-            "tan": math.tan,
-            "sqrt": math.sqrt,
-            "log": math.log,
-            "abs": abs,
-            "pow": pow,
-        }
-        return float(eval(expr, {"__builtins__": {}}, ambiente))
-
-    # Testa a expressão no ponto 0.0 para garantir validade sintática
-    try:
-        f(0.0)
-    except Exception:
-        pass
-
-    return f, expr
 
     # Multiplicação implícita 2x, 3(x+1), x(x+1), )(, 2pi, xpi
     expr = re.sub(r"(\d+)([a-zA-Z])", r"\1*\2", expr)
@@ -224,72 +194,3 @@ def metodo_newton(f, df, x0, tol, max_iter):
                 pd.DataFrame(
                     linhas,
                     columns=["Iteração", "xᵢ", "f(xᵢ)", "f'(xᵢ)", "xᵢ₊₁", "Erro"],
-                ),
-                geometria,
-            )
-        x = x1
-
-    return (
-        x,
-        pd.DataFrame(
-            linhas,
-            columns=["Iteração", "xᵢ", "f(xᵢ)", "f'(xᵢ)", "xᵢ₊₁", "Erro"],
-        ),
-        geometria,
-    )
-
-
-def metodo_secantes(f, x0, x1, tol, max_iter):
-    linhas = []
-    geometria = []
-
-    for i in range(1, max_iter + 1):
-        f0, f1 = f(x0), f(x1)
-
-        if abs(f1 - f0) < 1e-14:
-            raise ValueError("Denominador muito próximo de zero no método das Secantes.")
-
-        x2 = x1 - f1 * (x1 - x0) / (f1 - f0)
-        f2 = f(x2)
-        erro = abs(x2 - x1)
-
-        linhas.append([i, x0, x1, x2, f0, f1, f2, erro])
-        geometria.append((x0, f0, x1, f1, x2, f2))
-
-        if abs(f2) < tol or erro < tol:
-            return (
-                x2,
-                pd.DataFrame(
-                    linhas,
-                    columns=["Iteração", "x₀", "x₁", "x₂", "f(x₀)", "f(x₁)", "f(x₂)", "Erro"],
-                ),
-                geometria,
-            )
-
-        x0, x1 = x1, x2
-
-    return (
-        x2,
-        pd.DataFrame(
-            linhas,
-            columns=["Iteração", "x₀", "x₁", "x₂", "f(x₀)", "f(x₁)", "f(x₂)", "Erro"],
-        ),
-        geometria,
-    )
-
-
-# ============================================================
-# GRÁFICO ESTÁTICO (MATPLOTLIB)
-# ============================================================
-def criar_grafico(f, metodo, geometria, iteracao_exibir=None, g=None):
-    if not geometria:
-        return None
-
-    n = len(geometria) if iteracao_exibir is None else min(iteracao_exibir, len(geometria))
-    dados = geometria[:n]
-
-    xs = []
-    for item in dados:
-        xs.extend([v for v in item if isinstance(v, (int, float)) and math.isfinite(v)])
-
-    if xs
